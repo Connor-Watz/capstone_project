@@ -1,3 +1,11 @@
+/* -------------------------------
+Coded by Chase McGlinn, revised by Connor Watz
+Program to run through startup sequence
+Ask user for inputs, display input values, 
+and store values for operation of the system.
+---------------------------------- */
+
+
 #include <pigpio.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,11 +17,11 @@
 #define enterStimp 18
 #define targetDistLed 230
 #define invalid 240
-#define wait 23 
-#define ready 24
-#define mode1 
-#define mode2
-#define mode3
+#define wait 12 
+#define ready 73
+#define mode1 100
+#define mode2 100
+#define mode3 100
 
 int init;
 char start_stop[] = "";
@@ -30,12 +38,13 @@ int i, j;
 int startup(void)
 {
 
+// Initialization step: initialize gpio pins and set flags to 0
 
     init_gpio();
 	
-    gpioSetMode(setMode, PI_OUTPUT);
-    gpioSetPullUpDown(setMode, PI_PUD_UP);
-    gpioWrite(setMode, 1);
+    gpioSetMode(setMode, PI_OUTPUT);						// Set GPIO mode to output for pin 1			
+    gpioSetPullUpDown(setMode, PI_PUD_UP);					// Set pull up resistor on pin 1
+    gpioWrite(setMode, 1);									// Pin 1 is set to 1
 
     gpioSetMode(enterStimp, PI_OUTPUT);
     gpioSetPullUpDown(enterStimp, PI_PUD_UP);
@@ -58,12 +67,12 @@ int startup(void)
 		stop_flag = 0;
 		
 
-		gpioWrite(COL4, 0);
+		gpioWrite(COL4, 0);									// Input from 'scan_keypad.h', read column 4
 		gpioWrite(COL3, 1);
 		gpioWrite(COL2, 1);
 		gpioWrite(COL1, 1);
 
-		printf("Press Start:\n");
+		printf("Press Start:\n");							// Terminal print for debugging purposes
 		get_input();
 		read_input(start_stop);
 

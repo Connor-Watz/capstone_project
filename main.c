@@ -1,3 +1,14 @@
+/*
+Written by Connor Watz
+Main C file to run photogate laser subsystem, 
+startup sequence, camera subsystem, and 
+display subsystem.
+
+The camera is not initialized here, but the output
+value is read from "disp.txt"
+
+*/
+
 #include <stdio.h>
 #include <unistd.h>
 #include <pigpio.h>

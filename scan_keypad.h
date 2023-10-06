@@ -1,3 +1,9 @@
+/* 
+Written by Chase McGlinn
+Read the input of the keypad
+
+*/
+
 #include <pigpio.h>
 #include <stdio.h>
 #include <string.h>

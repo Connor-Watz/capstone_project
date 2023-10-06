@@ -1,16 +1,28 @@
+/*
+
+Written by Connor Watz
+Break integer numbers into individual
+digits. Flashes displays regularly to avoid
+blank digits on 7-segment displays.
+
+
+*/
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <pigpio.h>
 #include "shiftReg.h"
 
-#define SRCLK 6					// SRCLR is on pin 20
+#define SRCLK 6					
 #define RCLK  13
 #define SER   5
 #define SER2  16
 #define SER3  20
 
-#define TRAN1 19
+#define TRAN1 19						// Transistors to cycle between individual displays
 #define TRAN2 26
 #define TRAN3 21
 

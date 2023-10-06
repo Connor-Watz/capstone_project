@@ -1,3 +1,13 @@
+/*
+Written by Connor Watz
+This header file takes in an integer and
+ouputs corresponding binary code to display 
+a pattern for a 7-segment display.
+Shift registers are used to minimize pins on 
+the Raspberry Pi.
+
+*/
+
 #include <stdio.h>
 #include <pigpio.h>
 #include <stdlib.h>
@@ -15,6 +25,8 @@
 
 void transmit(unsigned data_in1, unsigned data_in2, unsigned data_in3, int tran_cur, int tran_nxt, int ser, int ser2, int ser3);
 void send(unsigned data_1, unsigned data_2, unsigned data_3,unsigned data_4 ,unsigned data_5,unsigned data_6,unsigned data_7,unsigned data_8,unsigned data_9, int ser, int ser2, int ser3);
+
+// Convert individual integer numbers to specific binary code. 3 input integers split into 3 digits each
 
 void display(int in1, int in2, int in3, int in4, int in5, int in6, int in7, int in8, int in9, int ser, int ser2, int ser3){
     unsigned out_1, out_2, out_3, out_4, out_5, out_6, out_7, out_8, out_9;
@@ -338,6 +350,9 @@ void display(int in1, int in2, int in3, int in4, int in5, int in6, int in7, int 
     send(out_1, out_2, out_3,out_4, out_5, out_6, out_7, out_8, out_9, ser, ser2, ser3);
 }
 
+// Function to send binary data three times for 3 displays. Each cycle will utilize one display for each number 
+// e.g first transmit is for the first digit of EACH number, second for second digit, etc.
+
 void send(unsigned data_1, unsigned data_2, unsigned data_3,unsigned data_4 ,unsigned data_5,unsigned data_6,unsigned data_7,unsigned data_8,unsigned data_9, int ser, int ser2, int ser3){
     int i = 0;
     int j = 0;
@@ -347,15 +362,17 @@ void send(unsigned data_1, unsigned data_2, unsigned data_3,unsigned data_4 ,uns
     return;
 }
 
+// Feed binary data into shift register
+
 void transmit(unsigned data_in1, unsigned data_in2, unsigned data_in3, int tran_cur, int tran_nxt, int ser, int ser2, int ser3){
 
     int curBit1, curBit2, curBit3 = 0;
-    unsigned int mask = 0b100000000;
+    unsigned int mask = 0b100000000;							// Bit mask ensures only one digit is sent at a time
     for(int i = 0; i < 8; i++){
         curBit1 = data_in1 & mask;
 	curBit2 = data_in2 & mask;
 	curBit3 = data_in3 & mask;
-	mask >>= 1;
+	mask >>= 1;													// Shift bit mask right 1 (00001000 -> 00000100)
 	if(curBit1 == 0){
 	    gpioWrite(ser, 0);
 	}
@@ -374,18 +391,19 @@ void transmit(unsigned data_in1, unsigned data_in2, unsigned data_in3, int tran_
 	else{
             gpioWrite(ser3, 1);
 	}
-	usleep(5);		// Sleep for 100 ms
-	gpioWrite(SRCLK, 1);
+	usleep(5);													// 5 microsecond delay
+	gpioWrite(SRCLK, 1);										// SRCLK cycle takes more time than write cycles (see data sheet for SN74HCS595 shift register)
 	gpioWrite(SRCLK, 0);
 	usleep(5);
 	gpioWrite(ser, 0);
 	gpioWrite(ser2, 0);
 	gpioWrite(ser3, 0);
-    }
-    gpioWrite(tran_cur, 0);
+    }															// Repeat for 8 bits (1 for each 7 segment)
+	
+    gpioWrite(tran_cur, 0);										// Set current transistor to OFF
     usleep(5);
-    gpioWrite(tran_nxt, 1);
-    gpioWrite(SRCLK, 1);
+    gpioWrite(tran_nxt, 1);										// Turn next transistor ON
+    gpioWrite(SRCLK, 1);										// Final clock cycle (pulse SRCLK and RCLK) sends correct bits to outputs
     gpioWrite(RCLK, 1);
     usleep(5);
     gpioWrite(SRCLK, 0);
